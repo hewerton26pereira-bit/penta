@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pentatônica na Guitarra — Blues & Menor</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: #1a1a2e;
+  color: #eee;
+  min-height: 100vh;
+  padding: 20px;
+}
+h1 {
+  text-align: center;
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #fff;
+}
+.subtitle {
+  text-align: center;
+  font-size: 13px;
+  color: #888;
+  margin-bottom: 20px;
+}
+
+.mode-toggle {
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 20px;
+}
+.mode-btn {
+  padding: 8px 28px;
+  font-size: 14px;
+  font-weight: 600;
+  border: 1px solid #444;
+  background: #2a2a3e;
+  color: #aaa;
+  cursor: pointer;
+  transition: all .2s;
+}
+.mode-btn:first-child { border-radius: 8px 0 0 8px; }
+.mode-btn:last-child  { border-radius: 0 8px 8px 0; }
+.mode-btn.active-blues { background: #c0392b; color: #fff; border-color: #c0392b; }
+.mode-btn.active-penta { background: #5c4de8; color: #fff; border-color: #5c4de8; }
+
+.controls {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+  align-items: center;
+}
+.controls label { font-size: 13px; color: #aaa; }
+select {
+  font-size: 13px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #444;
+  background: #2a2a3e;
+  color: #eee;
+  cursor: pointer;
+}
+
+.tabs {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.tab {
+  padding: 7px 16px;
+  font-size: 13px;
+  border-radius: 6px;
+  border: 1px solid #444;
+  background: #2a2a3e;
+  color: #aaa;
+  cursor: pointer;
+  transition: all .15s;
+}
+.tab:hover { border-color: #888; color: #eee; }
+.tab.active-blues { background: #c0392b; color: #fff; border-color: #c0392b; font-weight: 600; }
+.tab.active-penta { background: #5c4de8; color: #fff; border-color: #5c4de8; font-weight: 600; }
+
+.canvas-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+canvas {
+  width: 100%;
+  max-width: 680px;
+  border-radius: 10px;
+  display: block;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  font-size: 12px;
+  color: #aaa;
+  margin-bottom: 14px;
+}
+.leg { display: flex; align-items: center; gap: 5px; }
+.dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+.diam {
+  width: 10px; height: 10px;
+  background: #e74c3c;
+  transform: rotate(45deg);
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.info-bar {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.badge {
+  font-size: 12px; padding: 3px 12px;
+  border-radius: 5px; font-weight: 500;
+}
+.b-pos  { background: #3a2800; color: #f39c12; }
+.b-info { background: #1a2a4a; color: #74b9ff; }
+
+.tip {
+  max-width: 680px;
+  margin: 0 auto 18px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #ccc;
+  line-height: 1.7;
+  border-left: 3px solid #5c4de8;
+  background: #1e1e35;
+}
+.tip.blues-tip { border-left-color: #c0392b; background: #2a1818; }
+.tip b { color: #fff; }
+
+/* Licks */
+.licks-section {
+  max-width: 680px;
+  margin: 0 auto;
+}
+.licks-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #e74c3c;
+  margin-bottom: 10px;
+  padding-left: 4px;
+}
+.lick-card {
+  background: #1e1a10;
+  border-left: 3px solid #e67e22;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 10px;
+  font-size: 13px;
+  color: #ccc;
+  line-height: 1.7;
+}
+.lick-card b { color: #fff; }
+.tab-line {
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  background: #111;
+  border-radius: 5px;
+  padding: 8px 12px;
+  margin-top: 8px;
+  color: #f39c12;
+  white-space: pre;
+  overflow-x: auto;
+}
+
+footer {
+  text-align: center;
+  margin-top: 30px;
+  font-size: 12px;
+  color: #555;
+}
+</style>
+</head>
+<body>
+
+<h1>🎸 Pentatônica na Guitarra</h1>
+<p class="subtitle">Blues com blue note · Pentatônica pura · 5 shapes · Qualquer tom</p>
+
+<div class="mode-toggle">
+  <button class="mode-btn active-blues" id="btn-blues" onclick="setMode('blues')">🎵 Blues</button>
+  <button class="mode-btn" id="btn-penta" onclick="setMode('penta')">🎸 Pentatônica</button>
+</div>
+
+<div class="controls">
+  <label>Tom:</label>
+  <select id="sel-root">
+    <option value="0">E</option><option value="1">F</option>
+    <option value="2">F#/Gb</option><option value="3">G</option>
+    <option value="4">G#/Ab</option><option value="5" selected>A</option>
+    <option value="6">A#/Bb</option><option value="7">B</option>
+    <option value="8">C</option><option value="9">C#/Db</option>
+    <option value="10">D</option><option value="11">D#/Eb</option>
+  </select>
+  <label id="type-label" style="display:none">Escala:</label>
+  <select id="sel-type" style="display:none">
+    <option value="minor">Menor</option>
+    <option value="major">Maior</option>
+  </select>
+</div>
+
+<div class="tabs" id="shapeTabs"></div>
+<div class="info-bar" id="infoBar"></div>
+
+<div class="canvas-wrap">
+  <canvas id="cv" width="680" height="230"></canvas>
+</div>
+
+<div class="legend" id="legend"></div>
+<div class="tip" id="tip"></div>
+<div class="licks-section" id="licksSection"></div>
+
+<footer>hewerton26pereira-bit · github.io/penta</footer>
+
+<script>
+var NAMES = ['E','F','F#/Gb','G','G#/Ab','A','A#/Bb','B','C','C#/Db','D','D#/Eb'];
+var OPEN  = [0, 5, 10, 3, 7, 0];
+
+var BLUES_SHAPES = [
+  {
+    name:"Shape 1", off:0,
+    tip:"Dedo <b>1</b> na 6ª corda = raiz menor. Bend clássico na 2ª corda. O shape mais usado no blues — viva aqui.",
+    notes:[
+      [{rf:0,f:1,root:true},{rf:3,f:4}],
+      [{rf:0,f:1},{rf:3,f:4}],
+      [{rf:0,f:1},{rf:2,f:3},{rf:3,f:4,blue:true}],
+      [{rf:0,f:1},{rf:2,f:3}],
+      [{rf:0,f:1,bend:'↑'},{rf:3,f:4}],
+      [{rf:0,f:1,root:true},{rf:3,f:4}]
+    ]
+  },
+  {
+    name:"Shape 2", off:2,
+    tip:"<b>+2 trastes</b> acima do shape 1. Raiz na 4ª corda com dedo 1. Blue note na 5ª corda. Bom para bends na 3ª corda.",
+    notes:[
+      [{rf:0,f:1},{rf:2,f:3}],
+      [{rf:0,f:1},{rf:2,f:3},{rf:3,f:4,blue:true}],
+      [{rf:0,f:1,root:true},{rf:3,f:4}],
+      [{rf:0,f:1},{rf:3,f:4}],
+      [{rf:0,f:1},{rf:2,f:3}],
+      [{rf:0,f:1},{rf:2,f:3}]
+    ]
+  },
+  {
+    name:"Shape 3", off:5,
+    tip:"<b>+5 trastes</b> do shape 1. Raiz na 3ª corda. Blue note na 3ª corda. Forma de 'C' no braço.",
+    notes:[
+      [{rf:0,f:2},{rf:3,f:4}],
+      [{rf:0,f:2},{rf:3,f:4}],
+      [{rf:0,f:1},{rf:2,f:2,blue:true},{rf:3,f:4,root:true}],
+      [{rf:0,f:1},{rf:2,f:3}],
+      [{rf:0,f:1},{rf:3,f:4}],
+      [{rf:0,f:2},{rf:3,f:4}]
+    ]
+  },
+  {
+    name:"Shape 4", off:7,
+    tip:"<b>+7 trastes</b> do shape 1. Dedo <b>4</b> na 5ª corda = raiz. Blue note na 4ª corda. Espelho visual do shape 1.",
+    notes:[
+      [{rf:0,f:1},{rf:2,f:3}],
+      [{rf:0,f:1,root:true},{rf:3,f:4}],
+      [{rf:0,f:1},{rf:1,f:2,blue:true},{rf:3,f:4}],
+      [{rf:0,f:1},{rf:2,f:3}],
+      [{rf:0,f:1},{rf:3,f:4}],
+      [{rf:0,f:1},{rf:2,f:3}]
+    ]
+  },
+  {
+    name:"Shape 5", off:9,
+    tip:"<b>+9 trastes</b> do shape 1 — fecha o ciclo. Raiz com dedo <b>4</b> na 6ª corda. Após ele, shape 1 recomeça uma oitava acima.",
+    notes:[
+      [{rf:0,f:4,root:true},{rf:2,f:1}],
+      [{rf:0,f:4},{rf:2,f:1},{rf:3,f:2,blue:true}],
+      [{rf:0,f:4},{rf:2,f:1}],
+      [{rf:0,f:4},{rf:3,f:1}],
+      [{rf:0,f:4},{rf:3,f:1}],
+      [{rf:0,f:4,root:true},{rf:2,f:1}]
+    ]
+  }
+];
+
+var PENTA_SHAPES = [
+  {
+    name:"Shape 1", off:0,
+    tip:"Dedo <b>1</b> na 6ª corda = raiz menor. Dedo <b>4</b> na 6ª = relativa maior. O shape mais popular para solos.",
+    notes:[
+      [{rf:0,f:1,root:true},{rf:3,f:4}],
+      [{rf:0,f:1},{rf:3,f:4}],
+      [{rf:0,f:1},{rf:2,f:3}],
+      [{rf:0,f:1},{rf:2,f:3}],
+      [{rf:0,f:1},{rf:3,f:4}],
+      [{rf:0,f:1,root:true},{rf:3,f:4}]
+    ]
+  },
+  {
+    name:"Shape 2", off:2,
+    tip:"<b>+2 trastes</b> acima do shape 1. Raiz na 4ª corda com dedo 1. Dica: 'subiu dois'.",
+    notes:[
+      [{rf:0,f:1},{rf:2,f:3}],
+      [{rf:0,f:1},{rf:2,f:3}],
+      [{rf:0,f:1,root:true},{rf:3,f:4}],
+      [{rf:0,f:1},{rf:3,f:4}],
+      [{rf:0,f:1},{rf:2,f:3}],
+      [{rf:0,f:1},{rf:2,f:3}]
+    ]
+  },
+  {
+    name:"Shape 3", off:5,
+    tip:"<b>+5 trastes</b> do shape 1. Raiz na 2ª corda com dedo 1. Forma visual de 'C' no braço.",
+    notes:[
+      [{rf:0,f:2},{rf:3,f:4}],
+      [{rf:0,f:2},{rf:3,f:4}],
+      [{rf:0,f:1},{rf:3,f:4}],
+      [{rf:0,f:2},{rf:4,f:4}],
+      [{rf:0,f:1,root:true},{rf:3,f:4}],
+      [{rf:0,f:2},{rf:3,f:4}]
+    ]
+  },
+  {
+    name:"Shape 4", off:7,
+    tip:"<b>+7 trastes</b> do shape 1. Dedo <b>4</b> na 5ª corda = raiz. Espelho do shape 1.",
+    notes:[
+      [{rf:0,f:1},{rf:2,f:3}],
+      [{rf:0,f:1,root:true},{rf:3,f:4}],
+      [{rf:0,f:1},{rf:2,f:3}],
+      [{rf:0,f:1},{rf:2,f:3}],
+      [{rf:0,f:1},{rf:3,f:4}],
+      [{rf:0,f:1},{rf:2,f:3}]
+    ]
+  },
+  {
+    name:"Shape 5", off:9,
+    tip:"<b>+9 trastes</b> — fecha o ciclo. Raiz com dedo <b>4</b> na 6ª corda. Depois dele, shape 1 recomeça uma oitava acima.",
+    notes:[
+      [{rf:0,f:4,root:true},{rf:2,f:1}],
+      [{rf:0,f:4},{rf:2,f:1}],
+      [{rf:0,f:4},{rf:2,f:1}],
+      [{rf:0,f:4},{rf:3,f:1}],
+      [{rf:0,f:4},{rf:3,f:1}],
+      [{rf:0,f:4,root:true},{rf:2,f:1}]
+    ]
+  }
+];
+
+var FCOLORS = {1:'#e55039',2:'#f39c12',3:'#f39c12',4:'#27ae60'};
+var ROOT_COLOR = '#5c4de8';
+var BLUE_COLOR = '#e74c3c';
+
+var curMode  = 'blues';
+var curShape = 0;
+
+function setMode(m) {
+  curMode = m;
+  curShape = 0;
+  document.getElementById('btn-blues').className = 'mode-btn' + (m==='blues'?' active-blues':'');
+  document.getElementById('btn-penta').className = 'mode-btn' + (m==='penta'?' active-penta':'');
+  document.getElementById('sel-type').style.display = m==='penta'?'inline-block':'none';
+  document.getElementById('type-label').style.display = m==='penta'?'inline-block':'none';
+  buildTabs();
+  draw();
+}
+
+function buildTabs() {
+  var el = document.getElementById('shapeTabs');
+  el.innerHTML = '';
+  var shapes = curMode==='blues' ? BLUES_SHAPES : PENTA_SHAPES;
+  shapes.forEach(function(s,i){
+    var b = document.createElement('button');
+    b.textContent = s.name;
+    b.className = 'tab' + (i===0 ? (' active-'+curMode) : '');
+    b.onclick = (function(idx){ return function(){ curShape=idx; draw(); }; })(i);
+    el.appendChild(b);
+  });
+}
+
+function getBaseFret(root, off) {
+  var f = (root - OPEN[0] + 12) % 12;
+  if(f===0) f=12;
+  var bf = f + off;
+  while(bf>17) bf-=12;
+  if(bf<1) bf+=12;
+  return bf;
+}
+
+function getMinorRoot() {
+  var r = parseInt(document.getElementById('sel-root').value);
+  if(curMode==='penta' && document.getElementById('sel-type').value==='major')
+    return (r+9)%12;
+  return r;
+}
+
+function draw() {
+  var root = parseInt(document.getElementById('sel-root').value);
+  var minorRoot = getMinorRoot();
+  var shapes = curMode==='blues' ? BLUES_SHAPES : PENTA_SHAPES;
+  var sh = shapes[curShape];
+  var bf = getBaseFret(minorRoot, sh.off);
+
+  // tabs
+  document.querySelectorAll('.tab').forEach(function(t,i){
+    t.className = 'tab' + (i===curShape ? (' active-'+curMode) : '');
+  });
+
+  // info
+  var relMajor = NAMES[(minorRoot+3)%12];
+  document.getElementById('infoBar').innerHTML =
+    '<span class="badge b-pos">Traste base: '+bf+'º</span>' +
+    '<span class="badge b-info">'+NAMES[minorRoot]+'m pentatônica'+(curMode==='blues'?' blues':'')+'</span>';
+
+  // tip
+  var tipEl = document.getElementById('tip');
+  tipEl.innerHTML = sh.tip;
+  tipEl.className = 'tip' + (curMode==='blues'?' blues-tip':'');
+
+  // legend
+  var legEl = document.getElementById('legend');
+  var blueleg = curMode==='blues'
+    ? '<div class="leg"><div class="diam"></div>&nbsp;Blue note (b5)</div>'
+    : '';
+  legEl.innerHTML =
+    '<div class="leg"><div class="dot" style="background:#5c4de8;border:2px solid #fff"></div>Raiz</div>' +
+    '<div class="leg"><div class="dot" style="background:#e55039"></div>Dedo 1</div>' +
+    '<div class="leg"><div class="dot" style="background:#27ae60"></div>Dedo 4</div>' +
+    '<div class="leg"><div class="dot" style="background:#f39c12"></div>Dedo 2/3</div>' +
+    blueleg +
+    (curMode==='blues'?'<div class="leg">↑ = bend 1 tom</div>':'');
+
+  // canvas
+  var cv = document.getElementById('cv');
+  var ctx = cv.getContext('2d');
+  var W=cv.width, H=cv.height;
+  ctx.clearRect(0,0,W,H);
+
+  var ML=48,MR=28,MT=32,MB=22,FSHOW=5;
+  var FW=(W-ML-MR)/FSHOW;
+  var SH=(H-MT-MB)/5;
+
+  // bg
+  ctx.fillStyle='#12122a';
+  ctx.beginPath();
+  ctx.roundRect(ML,MT,W-ML-MR,H-MT-MB,8);
+  ctx.fill();
+
+  // fret numbers
+  ctx.fillStyle='#666'; ctx.font='11px sans-serif'; ctx.textAlign='center';
+  for(var f=0;f<FSHOW;f++)
+    ctx.fillText(bf+f, ML+f*FW+FW/2, MT-10);
+
+  // fret lines
+  for(var f=0;f<=FSHOW;f++){
+    var x=ML+f*FW;
+    ctx.beginPath(); ctx.moveTo(x,MT); ctx.lineTo(x,H-MB);
+    ctx.strokeStyle=f===0?'#888':'#2a2a4a';
+    ctx.lineWidth=f===0?2.5:0.8; ctx.stroke();
+  }
+
+  // strings
+  var strLabels=['6ª','5ª','4ª','3ª','2ª','1ª'];
+  for(var s=0;s<6;s++){
+    var y=MT+s*SH;
+    ctx.fillStyle='#555'; ctx.font='11px sans-serif'; ctx.textAlign='right';
+    ctx.fillText(strLabels[s],ML-8,y+4);
+    ctx.beginPath(); ctx.moveTo(ML,y); ctx.lineTo(W-MR,y);
+    ctx.strokeStyle='#2a2a4a'; ctx.lineWidth=1; ctx.stroke();
+  }
+
+  // notes
+  sh.notes.forEach(function(strNotes,si){
+    strNotes.forEach(function(n){
+      var relF=n.rf;
+      if(relF<0||relF>=FSHOW) return;
+      var x=ML+relF*FW+FW/2;
+      var y=MT+si*SH;
+      var r=11;
+
+      ctx.beginPath(); ctx.arc(x,y,r+2,0,2*Math.PI);
+      ctx.fillStyle='rgba(0,0,0,0.4)'; ctx.fill();
+
+      if(n.blue){
+        ctx.save(); ctx.translate(x,y); ctx.rotate(Math.PI/4);
+        ctx.fillStyle=BLUE_COLOR;
+        ctx.fillRect(-9,-9,18,18);
+        ctx.restore();
+        ctx.fillStyle='#fff'; ctx.font='bold 9px sans-serif'; ctx.textAlign='center';
+        ctx.fillText('b5',x,y+3);
+      } else {
+        var col=n.root?ROOT_COLOR:FCOLORS[n.f];
+        ctx.beginPath(); ctx.arc(x,y,r,0,2*Math.PI);
+        ctx.fillStyle=col; ctx.fill();
+        if(n.root){
+          ctx.beginPath(); ctx.arc(x,y,r+3.5,0,2*Math.PI);
+          ctx.strokeStyle='#fff'; ctx.lineWidth=1.5; ctx.stroke();
+        }
+        ctx.fillStyle='#fff'; ctx.font='bold 11px sans-serif';
+        ctx.textAlign='center';
+        ctx.fillText(String(n.f),x,y+4);
+      }
+      if(n.bend){
+        ctx.fillStyle='#e74c3c'; ctx.font='bold 12px sans-serif';
+        ctx.textAlign='left';
+        ctx.fillText(n.bend,x+13,y-5);
+      }
+    });
+  });
+
+  // licks (só no blues)
+  renderLicks(minorRoot, bf);
+}
+
+function renderLicks(minorRoot, bf) {
+  var el = document.getElementById('licksSection');
+  if(curMode !== 'blues') { el.innerHTML=''; return; }
+
+  var rn = NAMES[minorRoot];
+  var b=bf, b2=bf+2, b3=bf+3, b5=bf+5;
+
+  el.innerHTML =
+  '<div class="licks-title">🎵 Licks clássicos de blues em '+rn+'m</div>'+
+
+  '<div class="lick-card">'+
+  '<b>1. "Call" — bend na 2ª corda</b><br>'+
+  'O som mais icônico do blues. Sobe ao '+b3+'º traste na 2ª corda e bend de 1 tom.<br>'+
+  '<div class="tab-line">'+
+  'e |---'+b+'-------'+b3+'b↑---'+b+'---|\n'+
+  'B |---'+b+'---'+b3+'-------------------|\n'+
+  'G |---'+b+'---'+b2+'-------------------|\n'+
+  'D |--------------------------------|\n'+
+  'A |--------------------------------|\n'+
+  'E |--------------------------------|'+
+  '</div></div>'+
+
+  '<div class="lick-card">'+
+  '<b>2. Blue note — o "sujo"</b><br>'+
+  'Na 4ª corda: dedo 3 no '+b2+'º, passa pela blue note ('+b3+'º) e resolve no '+b5+'º. Tensão e resolução.<br>'+
+  '<div class="tab-line">'+
+  'e |------------------------------|\n'+
+  'B |------------------------------|\n'+
+  'G |------------------------------|\n'+
+  'D |---'+b+'---'+b2+'---'+b3+'---'+b5+'---|\n'+
+  'A |---'+b+'---'+b3+'-------------------|\n'+
+  'E |---'+b+'--------------------------|'+
+  '</div></div>'+
+
+  '<div class="lick-card">'+
+  '<b>3. Descida com bend — "response"</b><br>'+
+  'Desce pela 1ª e 2ª corda, termina com bend. Clássico como frase de resposta.<br>'+
+  '<div class="tab-line">'+
+  'e |---'+b3+'---'+b+'-------------------|\n'+
+  'B |-------'+b3+'b↑---'+b+'---'+(b-1)+'---|\n'+
+  'G |------------------------------|\n'+
+  'D |------------------------------|\n'+
+  'A |------------------------------|\n'+
+  'E |------------------------------|'+
+  '</div></div>';
+}
+
+document.getElementById('sel-root').addEventListener('change', draw);
+document.getElementById('sel-type').addEventListener('change', draw);
+
+buildTabs();
+draw();
+</script>
+</body>
+</html>
