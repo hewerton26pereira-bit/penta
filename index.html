@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pentatônicas</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d1117;color:#e6edf3;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
+header{padding:22px 20px 12px;border-bottom:1px solid #21262d}
+header h1{font-size:19px;font-weight:600}
+header p{color:#7d8590;font-size:12px;margin-top:3px}
+.controls{padding:12px 20px;border-bottom:1px solid #21262d;display:flex;flex-direction:column;gap:9px}
+.key-row{display:flex;flex-wrap:wrap;gap:5px}
+.key-btn{padding:5px 12px;border-radius:6px;border:1px solid #30363d;background:#161b22;color:#8b949e;font-size:13px;cursor:pointer;transition:all .12s;font-weight:500}
+.key-btn:hover{border-color:#7c3aed;color:#e6edf3}
+.key-btn.active{background:#7c3aed;border-color:#7c3aed;color:#fff}
+.mode-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.mode-toggle{display:flex;border:1px solid #30363d;border-radius:7px;overflow:hidden}
+.mode-btn{padding:6px 16px;background:#161b22;border:none;color:#8b949e;font-size:13px;cursor:pointer}
+.mode-btn.active{background:#21262d;color:#e6edf3;font-weight:600}
+.mode-btn.active.minor{color:#ff6b6b}
+.mode-btn.active.major{color:#ffd43b}
+.rel-badge{background:#161b22;border:1px solid #30363d;border-radius:7px;padding:6px 13px;font-size:12px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.boxes{padding:14px 20px;display:flex;flex-direction:column;gap:18px}
+.box-card{background:#161b22;border:1px solid #21262d;border-radius:10px;overflow:hidden}
+.box-header{display:flex;align-items:center;justify-content:space-between;padding:10px 15px;border-bottom:1px solid #21262d}
+.box-name{font-size:14px;font-weight:600}
+.box-fret{font-size:11px;color:#8b949e;background:#0d1117;border-radius:4px;padding:2px 8px}
+.neck-wrap{padding:8px 15px 4px;overflow-x:auto}
+.scale-notes{display:flex;gap:6px;flex-wrap:wrap;padding:8px 15px 5px;align-items:center}
+.np{padding:3px 10px;border-radius:20px;border:1px solid #30363d;background:#0d1117;font-size:12px;font-weight:500;color:#8b949e}
+.np.rm{border-color:#ff6b6b;color:#ff6b6b}
+.np.rM{border-color:#ffd43b;color:#ffd43b}
+.rel-note{font-size:11px;color:#6e7681;padding:0 15px 10px}
+.tabs{display:flex;border-bottom:1px solid #21262d;padding:0 20px}
+.tab-btn{padding:10px 18px;background:none;border:none;border-bottom:2px solid transparent;color:#7d8590;font-size:13px;cursor:pointer;font-weight:500;margin-bottom:-1px;transition:all .15s}
+.tab-btn.active{color:#e6edf3;border-bottom-color:#7c3aed}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+.full-neck-card{background:#161b22;border:1px solid #21262d;border-radius:10px;overflow:hidden;margin:14px 20px}
+.full-neck-header{padding:11px 15px;border-bottom:1px solid #21262d;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:space-between}
+.full-neck-wrap{padding:10px 15px 12px;overflow-x:auto}
+.legend{display:flex;gap:16px;padding:11px 20px;border-top:1px solid #21262d;flex-wrap:wrap}
+.li{display:flex;align-items:center;gap:5px;font-size:11px;color:#7d8590}
+.ld{width:12px;height:12px;border-radius:50%}
+</style>
+</head>
+<body>
+<header>
+  <h1>Escalas Pentatônicas — Guitarra</h1>
+  <p>5 boxes · Todas as tonalidades · Baseado no PDF GuitarSix · Afinação E A D G B e</p>
+</header>
+<div class="controls">
+  <div class="key-row" id="keyRow"></div>
+  <div class="mode-row">
+    <div class="mode-toggle">
+      <button class="mode-btn minor active" onclick="setMode('minor')">Menor</button>
+      <button class="mode-btn major" onclick="setMode('major')">Maior</button>
+    </div>
+    <div class="rel-badge" id="relBadge"></div>
+  </div>
+</div>
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('boxes')">5 Boxes</button>
+  <button class="tab-btn" onclick="switchTab('fullneck')">Braço Completo</button>
+</div>
+<div class="tab-panel active" id="panel-boxes">
+  <div class="boxes" id="boxes"></div>
+</div>
+<div class="tab-panel" id="panel-fullneck">
+  <div class="full-neck-card">
+    <div class="full-neck-header">
+      <span id="fullneck-title">Braço completo — A menor pentatônica</span>
+      <span style="font-size:11px;color:#7d8590">casas 1–17 · afinação E A D G B e</span>
+    </div>
+    <div class="full-neck-wrap" id="fullneck-wrap"></div>
+  </div>
+</div>
+<div class="legend">
+  <div class="li"><div class="ld" style="background:#c92a2a"></div>Root menor</div>
+  <div class="li"><div class="ld" style="background:#e67700"></div>Root maior relativa</div>
+  <div class="li"><div class="ld" style="background:#1864ab"></div>Nota da escala</div>
+  <div class="li"><div class="ld" style="background:#0e9aa0;border:2px dashed #0e9aa0"></div>Blue note (b5) — bend aqui</div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// BOXES — posições EXATAS do PDF GuitarSix para Am pentatônica
+//
+// Leitura direta do PDF página 2:
+//  - Círculo vermelho/laranja (A) = root menor
+//  - Círculo azul claro com letra = nota
+//  - Referência: casas absolutas para Am
+//
+// Box 1 (casas 5-8):
+//   E: 5(A=rm), 8(C=rM)
+//   A: 5(n), 7(n)
+//   D: 5(n), 7(n)
+//   G: 5(n), 7(n)
+//   B: 5(n), 8(n)
+//   e: 5(A=rm), 8(C=rM)
+//
+// Box 2 (casas 7-10):
+//   E: 7(C=rM), 10(n)      ← C na 8ª do braço mas é a 7ª casa do box (C=8ª traste absoluta... 
+//      Revisando: corda E afinada. C está na 8ª casa abs. Box 2 começa na 7ª.
+//      Então offset do C = 8-7=1. E na 10ª está o D (nota).
+//      PDF mostra em E: laranjinha(C) e azul(D) no box 2.
+//   Corrigindo via PDF visual:
+//   E: 8(C=rM, offset=1 do box q começa em 7), 10(D=n, offset=3)
+//   A: 7(G=n,off=0), 10(A=rm,off=3)  ← A está na 10ª do box2? Não, A=5ª abs ou 17ª...
+//      REVISÃO COMPLETA abaixo
+//
+// Notas de Am: A(5ª casa E), C(8ª), D(10ª), E(12ª), G(15ª/3ª aberta)
+// Mapeamento absoluto corda E(6): A=5, C=8, D=10, E=12, G=15
+// Corda A(5): D=5, E=7, G=10, A=12, C=15
+// Corda D(4): G=5, A=7, C=10, D=12, E=14
+// Corda G(3): C=5, D=7, E=9, G=12, A=14
+// Corda B(2): D=3, E=5, G=8, A=10, C=13
+// Corda e(1): A=5, C=8, D=10, E=12, G=15
+//
+// Box 1 (5-8): E:5(A=rm),8(C=rM) | A:5(D=n),7(E=n) | D:5(G=n),7(A=rm)? 
+//   Espera — no box 1, a root menor(A) em D seria na 7ª casa.
+//   PDF mostra D no box1: dois círculos azuis (notas) em 5 e 7. G(3): azuis em 5 e 7.
+//   A root(A) marcada em LARANJINHA está em: E:5, G:7(não, é D), ...
+//   
+//   Simplificando: no PDF as bolinhas VERMELHAS/LARANJAS marcam as roots.
+//   Box 1 roots vermelhas/laranjas: E:5(A), B:? e(1):5(A)... e C em 8(rM)
+//   
+//   Vou usar o mapeamento absoluto e calcular qual nota cai em cada casa:
+// ═══════════════════════════════════════════════════════════════
+
+// Notas em cada corda (afinação padrão), a partir da corda solta (casa 0):
+// E(6): E F F# G Ab A Bb B C C# D Eb E...
+// A(5): A Bb B C C# D Eb E F F# G Ab A...
+// D(4): D Eb E F F# G Ab A Bb B C C# D...
+// G(3): G Ab A Bb B C C# D Eb E F F# G...
+// B(2): B C C# D Eb E F F# G Ab A Bb B...
+// e(1): E F F# G Ab A Bb B C C# D Eb E...
+
+const CHROMATIC = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+// Casa 0 de cada corda (nota da corda solta):
+const OPEN = [4, 9, 2, 7, 11, 4]; // E=4, A=9, D=2, G=7, B=11, e=4
+
+function noteAt(str, fret){ return CHROMATIC[(OPEN[str]+fret)%12]; }
+
+// Pentatônicas: intervalos em semitons
+const MIN_INT = [0,3,5,7,10]; // 1 b3 4 5 b7
+const MAJ_INT = [0,2,4,7,9];  // 1 2 3 5 6
+
+// Para uma dada tonalidade e modo, quais são as notas da escala
+function getScale(root, mode){
+  const ri = CHROMATIC.indexOf(root);
+  const ints = mode==='minor' ? MIN_INT : MAJ_INT;
+  return new Set(ints.map(i => CHROMATIC[(ri+i)%12]));
+}
+
+// Root notes: para uma dada escala, identificar quais são as duas roots (minor e major relativa)
+function getRoots(key, mode){
+  const ki = CHROMATIC.indexOf(key);
+  const rootMinor = mode==='minor' ? key : CHROMATIC[(ki+9)%12];
+  const rootMajor = mode==='minor' ? CHROMATIC[(ki+3)%12] : key;
+  return {minor: rootMinor, major: rootMajor};
+}
+
+// Blue note: b5 da minor (tritono = 6 semitons acima da root minor)
+// Para major: b3 da major (3 semitons acima da root major) — mesmo efeito blues
+function getBlueNote(key, mode){
+  const ki = CHROMATIC.indexOf(key);
+  const rootMinor = mode==='minor' ? ki : (ki+9)%12;
+  return CHROMATIC[(rootMinor+6)%12]; // b5 da escala menor
+}
+
+// Encontrar as casas de cada nota da escala em cada corda, dentro de um range
+function getBoxNotes(key, mode, fretStart, fretEnd){
+  const scale = getScale(key, mode);
+  const roots = getRoots(key, mode);
+  const blueNote = getBlueNote(key, mode);
+  const result = []; // [string][notes]
+  for(let s=0;s<6;s++){
+    const notes=[];
+    for(let f=fretStart; f<=fretEnd; f++){
+      const n = noteAt(s, f);
+      if(scale.has(n)){
+        let t='n';
+        if(n===roots.minor) t='rm';
+        else if(n===roots.major) t='rM';
+        notes.push({fret:f, note:n, t});
+      }
+      // Blue note: marca na casa ANTERIOR (fret-1) = onde o bend origina
+      if(n===blueNote && !scale.has(n)){
+        const bendFret = f - 1;
+        const bendNote = noteAt(s, bendFret);
+        if(bendFret >= fretStart && scale.has(bendNote)){
+          // Substitui o marcador 'n' da casa de origem pelo 'bn' (ciano tem prioridade)
+          const existingIdx = notes.findIndex(x => x.fret===bendFret);
+          if(existingIdx >= 0) notes.splice(existingIdx, 1);
+          notes.push({fret:bendFret, note:bendNote, t:'bn', bendTo:n});
+        }
+      }
+    }
+    result.push(notes);
+  }
+  return result;
+}
+
+// ─── Boxes: posições baseadas no PDF (para Am = A menor)
+// Cada box cobre uma janela de casas. Determinado pelo PDF:
+// Box1: 5-8, Box2: 7-10, Box3: 9-12, Box4: 12-15, Box5: 15-17
+// Para outra tonalidade, transpomos: diferença entre root e A no braço da corda E
+
+const BOX_WINDOWS = [
+  {name:'Box 1'},
+  {name:'Box 2'},
+  {name:'Box 3'},
+  {name:'Box 4'},
+  {name:'Box 5'},
+];
+const BOX_SPANS = [5, 5, 5, 5, 5];
+
+// Base fret do box 1 para Am: 5ª casa (A na corda E)
+// Cada box seguinte sobe pela próxima nota da escala na corda E
+// Am na E: A=5, C=8, D=10, E=12, G=15 → boxes começam em 5,7,9,12,14(ou 15)
+// Do PDF: Box1=5, Box2=7, Box3=9, Box4=12, Box5=15
+const AM_BASES = [5, 7, 9, 12, 13]; // Box5: janela 13-17 p/ incluir G:14
+
+function getBoxBase(boxIdx, key){
+  // Transpor: A está na 5ª casa do E. Key X está na casa (X_idx - E_idx) = (ki-4+12)%12
+  const ki = CHROMATIC.indexOf(key);
+  const aBase = 5; // A na corda E = 5ª casa
+  const transpose = (ki - 9 + 12) % 12; // diferença relativa à A
+  return AM_BASES[boxIdx] + transpose;
+}
+
+// ─── Dados estáticos e estado
+const KEYS=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const KEY_DISPLAY={'C':'C','C#':'C#','D':'D','D#':'Eb','E':'E','F':'F','F#':'F#','G':'G','G#':'Ab','A':'A','A#':'Bb','B':'B'};
+let curKey='A', curMode='minor';
+
+// Init botões
+const keyRow=document.getElementById('keyRow');
+KEYS.forEach(k=>{
+  const b=document.createElement('button');
+  b.className='key-btn'+(k===curKey?' active':'');
+  b.textContent=KEY_DISPLAY[k];
+  b.onclick=()=>setKey(k);
+  keyRow.appendChild(b);
+});
+
+function setKey(k){curKey=k;document.querySelectorAll('.key-btn').forEach((b,i)=>b.classList.toggle('active',KEYS[i]===k));render();}
+function setMode(m){curMode=m;document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('active'));document.querySelector('.mode-btn.'+m).classList.add('active');render();}
+
+function getRelative(key,mode){
+  const ki=CHROMATIC.indexOf(key);
+  return mode==='minor'?CHROMATIC[(ki+3)%12]:CHROMATIC[(ki+9)%12];
+}
+
+function render(){
+  const rel=getRelative(curKey,curMode);
+  const relMode=curMode==='minor'?'maior':'menor';
+  const c1=curMode==='minor'?'#ff6b6b':'#ffd43b';
+  const c2=curMode==='minor'?'#ffd43b':'#ff6b6b';
+  document.getElementById('relBadge').innerHTML=
+    `<span style="color:#7d8590">Escala:</span> <strong style="color:${c1}">${KEY_DISPLAY[curKey]} ${curMode==='minor'?'menor':'maior'}</strong>`+
+    ` <span style="color:#8b5cf6">↔</span> `+
+    `<span style="color:#7d8590">Relativa:</span> <strong style="color:${c2}">${KEY_DISPLAY[rel]} ${relMode}</strong>`;
+
+  // Para modo maior, a root "minor" do box é a relativa menor
+  const actualKey = curMode==='minor' ? curKey : getRelative(curKey,'major');
+
+  const scale=[];
+  const ki=CHROMATIC.indexOf(curKey);
+  const ints=curMode==='minor'?MIN_INT:MAJ_INT;
+  ints.forEach(i=>scale.push(CHROMATIC[(ki+i)%12]));
+
+  const area=document.getElementById('boxes');
+  area.innerHTML='';
+
+  BOX_WINDOWS.forEach((bw,bi)=>{
+    const base=getBoxBase(bi, actualKey);
+    const fStart=base;
+    const fEnd=fStart+BOX_SPANS[bi];
+    const notes=getBoxNotes(curKey, curMode, fStart, fEnd);
+
+    const W_START=fStart, W_END=fEnd;
+
+    const card=document.createElement('div');
+    card.className='box-card';
+    card.innerHTML=`<div class="box-header"><span class="box-name">${bw.name}</span><span class="box-fret">${fStart}ª casa</span></div>`;
+
+    const nw=document.createElement('div');
+    nw.className='neck-wrap';
+    nw.appendChild(buildSVG(notes, W_START, W_END));
+    card.appendChild(nw);
+
+    const nr=document.createElement('div'); nr.className='scale-notes';
+    scale.forEach((n,ni)=>{
+      const p=document.createElement('div');
+      p.className='np'+(ni===0?(curMode==='minor'?' rm':' rM'):'');
+      p.textContent=KEY_DISPLAY[n]||n;
+      nr.appendChild(p);
+    });
+    card.appendChild(nr);
+
+    const rd=document.createElement('div'); rd.className='rel-note';
+    const rc=curMode==='minor'?'#ffd43b':'#ff6b6b';
+    rd.innerHTML=`Relativa: <strong style="color:${rc}">${KEY_DISPLAY[rel]} ${relMode}</strong> — mesmas posições, root diferente`;
+    card.appendChild(rd);
+    area.appendChild(card);
+  });
+
+  // Atualiza braço completo sempre (independente da aba ativa)
+  renderFullNeck();
+}
+
+function buildSVG(stringNotes, fStart, fEnd){
+  const SPAN = fEnd - fStart;
+
+  // Layout: LP/RP = padding lateral, NECK_TOP/NECK_BOT = topo/fundo do braço
+  // Números ficam ABAIXO do braço, fora do rect do fundo
+  const W=600, H=160;
+  const LP=38, RP=16;
+  const NECK_TOP=10, NECK_BOT=110; // braço ocupa y 10–110
+  const NUM_Y=138;                  // números das casas
+  const FW=(W-LP-RP)/SPAN;
+  const NECK_H=NECK_BOT-NECK_TOP;
+  const SH=NECK_H/5;
+
+  const ns='http://www.w3.org/2000/svg';
+  const svg=document.createElementNS(ns,'svg');
+  svg.setAttribute('width','100%');
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+
+  // Fundo amadeirado do braço — só até NECK_BOT
+  const bg=document.createElementNS(ns,'rect');
+  bg.setAttribute('x',LP); bg.setAttribute('y',NECK_TOP);
+  bg.setAttribute('width',W-LP-RP); bg.setAttribute('height',NECK_H);
+  bg.setAttribute('fill','#1a1200'); bg.setAttribute('rx','4');
+  svg.appendChild(bg);
+
+  // Linhas dos trastes (dentro do braço)
+  for(let c=0;c<=SPAN;c++){
+    const x=LP+c*FW;
+    const l=document.createElementNS(ns,'line');
+    l.setAttribute('x1',x); l.setAttribute('y1',NECK_TOP);
+    l.setAttribute('x2',x); l.setAttribute('y2',NECK_BOT);
+    l.setAttribute('stroke',c===0?'#7a5828':'#302010');
+    l.setAttribute('stroke-width',c===0?'3':'1');
+    svg.appendChild(l);
+  }
+
+  // Números das casas — fora do braço, embaixo, branco
+  for(let c=0;c<SPAN;c++){
+    const x=LP+c*FW+FW/2;
+    const t=document.createElementNS(ns,'text');
+    t.setAttribute('x',x); t.setAttribute('y',NUM_Y);
+    t.setAttribute('text-anchor','middle');
+    t.setAttribute('font-size','12'); t.setAttribute('fill','#ffffff');
+    t.setAttribute('font-weight','600');
+    t.textContent=fStart+c;
+    svg.appendChild(t);
+  }
+
+  // Cordas — E grosso (s=0) EMBAIXO (y=NECK_BOT), e fino (s=5) em cima (y=NECK_TOP)
+  const SL=['E','A','D','G','B','e'];
+  const SW=[2.2,1.7,1.3,1.0,0.75,0.5];
+  for(let s=0;s<6;s++){
+    const si_inv=5-s;
+    const y=NECK_TOP+si_inv*SH;
+    const l=document.createElementNS(ns,'line');
+    l.setAttribute('x1',LP); l.setAttribute('y1',y);
+    l.setAttribute('x2',W-RP); l.setAttribute('y2',y);
+    l.setAttribute('stroke','#c4a840'); l.setAttribute('stroke-width',SW[s]);
+    l.setAttribute('opacity','0.7');
+    svg.appendChild(l);
+    // Label da corda
+    const t=document.createElementNS(ns,'text');
+    t.setAttribute('x',LP-6); t.setAttribute('y',y+4);
+    t.setAttribute('text-anchor','middle');
+    t.setAttribute('font-size','11'); t.setAttribute('fill','#e6edf3');
+    t.setAttribute('font-weight','600');
+    t.textContent=SL[s];
+    svg.appendChild(t);
+  }
+
+  // Notas
+  const NR=10;
+  stringNotes.forEach((sn,si)=>{
+    const si_inv=5-si;
+    const y=NECK_TOP+si_inv*SH;
+    sn.forEach(n=>{
+      if(n.fret<fStart||n.fret>=fEnd) return;
+      const col=n.fret-fStart;
+      const x=LP+col*FW+FW/2;
+      const fill=n.t==='rm'?'#c92a2a':n.t==='rM'?'#e67700':n.t==='bn'?'#0e9aa0':'#1864ab';
+      const stroke=n.t==='rm'?'#7b1111':n.t==='rM'?'#944700':n.t==='bn'?'#066b70':'#0b3d7a';
+      const circle=document.createElementNS(ns,'circle');
+      circle.setAttribute('cx',x); circle.setAttribute('cy',y);
+      circle.setAttribute('r',NR);
+      circle.setAttribute('fill',fill); circle.setAttribute('stroke',stroke);
+      circle.setAttribute('stroke-width', n.t==='bn'?'2':'1.5');
+      // Blue note: borda tracejada para indicar "bend"
+      if(n.t==='bn') circle.setAttribute('stroke-dasharray','2.5 1.5');
+      svg.appendChild(circle);
+      const txt=document.createElementNS(ns,'text');
+      txt.setAttribute('x',x); txt.setAttribute('y',y+4);
+      txt.setAttribute('text-anchor','middle');
+      txt.setAttribute('font-size','9'); txt.setAttribute('fill','#ffffff');
+      txt.setAttribute('font-weight','700');
+      txt.textContent=(n.t==='bn'?(KEY_DISPLAY[n.note]||n.note)+'↑':(KEY_DISPLAY[n.note]||n.note));
+      svg.appendChild(txt);
+    });
+  });
+
+  return svg;
+}
+
+function switchTab(tab){
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',['boxes','fullneck'][i]===tab));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active',p.id==='panel-'+tab));
+  if(tab==='fullneck') renderFullNeck();
+}
+
+function renderFullNeck(){
+  const rel=getRelative(curKey,curMode);
+  const relMode=curMode==='minor'?'maior':'menor';
+  const c1=curMode==='minor'?'#ff6b6b':'#ffd43b';
+  const title=`Braço completo — <span style="color:${c1}">${KEY_DISPLAY[curKey]} ${curMode==='minor'?'menor':'maior'}</span>`;
+  document.getElementById('fullneck-title').innerHTML=title;
+
+  const actualKey=curMode==='minor'?curKey:getRelative(curKey,'major');
+  const allNotes=getBoxNotes(curKey,curMode,0,24);
+  const wrap=document.getElementById('fullneck-wrap');
+  wrap.innerHTML='';
+  wrap.appendChild(buildFullNeckSVG(allNotes,1,17));
+}
+
+function buildFullNeckSVG(stringNotes, fStart, fEnd){
+  const SPAN=fEnd-fStart+1;
+  const W=920, H=180;
+  const LP=32, RP=12;
+  const NECK_TOP=14, NECK_BOT=120; // braço: y 14–120
+  const NUM_Y=148;                  // números das casas: fora do braço
+  const FW=(W-LP-RP)/SPAN;
+  const NECK_H=NECK_BOT-NECK_TOP;
+  const SH=NECK_H/5;
+
+  const ns='http://www.w3.org/2000/svg';
+  const svg=document.createElementNS(ns,'svg');
+  svg.setAttribute('width','100%');
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  svg.setAttribute('style','min-width:640px');
+
+  // Fundo do braço
+  const bg=document.createElementNS(ns,'rect');
+  bg.setAttribute('x',LP); bg.setAttribute('y',NECK_TOP);
+  bg.setAttribute('width',W-LP-RP); bg.setAttribute('height',NECK_H);
+  bg.setAttribute('fill','#1a1200'); bg.setAttribute('rx','4');
+  svg.appendChild(bg);
+
+  // Marcadores de posição (pontos internos ao braço)
+  const DOTS=[3,5,7,9,15];
+  const DDOTS=[12];
+  const yMid=NECK_TOP+NECK_H/2;
+  DOTS.forEach(d=>{
+    if(d<fStart||d>fEnd) return;
+    const x=LP+(d-fStart)*FW+FW/2;
+    const dot=document.createElementNS(ns,'circle');
+    dot.setAttribute('cx',x); dot.setAttribute('cy',yMid);
+    dot.setAttribute('r','5'); dot.setAttribute('fill','#2e2008'); dot.setAttribute('opacity','1');
+    svg.appendChild(dot);
+  });
+  DDOTS.forEach(d=>{
+    if(d<fStart||d>fEnd) return;
+    const x=LP+(d-fStart)*FW+FW/2;
+    [NECK_TOP+NECK_H*0.28, NECK_TOP+NECK_H*0.72].forEach(yy=>{
+      const dot=document.createElementNS(ns,'circle');
+      dot.setAttribute('cx',x); dot.setAttribute('cy',yy);
+      dot.setAttribute('r','5'); dot.setAttribute('fill','#2e2008');
+      svg.appendChild(dot);
+    });
+  });
+
+  // Trastes
+  for(let c=0;c<=SPAN;c++){
+    const x=LP+c*FW;
+    const l=document.createElementNS(ns,'line');
+    l.setAttribute('x1',x); l.setAttribute('y1',NECK_TOP);
+    l.setAttribute('x2',x); l.setAttribute('y2',NECK_BOT);
+    l.setAttribute('stroke',c===0?'#8a6030':'#302010');
+    l.setAttribute('stroke-width',c===0?'3':'0.8');
+    svg.appendChild(l);
+  }
+
+  // Números das casas — FORA do braço, abaixo, cor branca
+  for(let c=0;c<SPAN;c++){
+    const fret=fStart+c;
+    const x=LP+c*FW+FW/2;
+    const marked=[3,5,7,9,12,15].includes(fret);
+    const t=document.createElementNS(ns,'text');
+    t.setAttribute('x',x); t.setAttribute('y',NUM_Y);
+    t.setAttribute('text-anchor','middle');
+    t.setAttribute('font-size','11');
+    t.setAttribute('fill', marked?'#ffffff':'#5a6070');
+    t.setAttribute('font-weight', marked?'700':'400');
+    t.textContent=fret;
+    svg.appendChild(t);
+  }
+
+  // Cordas — E grosso (s=0) EMBAIXO, e fino (s=5) em cima
+  const SL=['E','A','D','G','B','e'];
+  const SW=[2.2,1.7,1.3,1.0,0.75,0.5];
+  for(let s=0;s<6;s++){
+    const si_inv=5-s;
+    const y=NECK_TOP+si_inv*SH;
+    const l=document.createElementNS(ns,'line');
+    l.setAttribute('x1',LP); l.setAttribute('y1',y);
+    l.setAttribute('x2',W-RP); l.setAttribute('y2',y);
+    l.setAttribute('stroke','#c4a840'); l.setAttribute('stroke-width',SW[s]);
+    l.setAttribute('opacity','0.7');
+    svg.appendChild(l);
+    const t=document.createElementNS(ns,'text');
+    t.setAttribute('x',LP-5); t.setAttribute('y',y+4);
+    t.setAttribute('text-anchor','middle');
+    t.setAttribute('font-size','10'); t.setAttribute('fill','#e6edf3');
+    t.setAttribute('font-weight','600');
+    t.textContent=SL[s];
+    svg.appendChild(t);
+  }
+
+  // Notas
+  const NR=8;
+  stringNotes.forEach((sn,si)=>{
+    const si_inv=5-si;
+    const y=NECK_TOP+si_inv*SH;
+    sn.forEach(n=>{
+      if(n.fret<fStart||n.fret>fEnd) return;
+      const col=n.fret-fStart;
+      const x=LP+col*FW+FW/2;
+      const fill=n.t==='rm'?'#c92a2a':n.t==='rM'?'#e67700':n.t==='bn'?'#0e9aa0':'#1864ab';
+      const stroke=n.t==='rm'?'#7b1111':n.t==='rM'?'#944700':n.t==='bn'?'#066b70':'#0b3d7a';
+      const c=document.createElementNS(ns,'circle');
+      c.setAttribute('cx',x); c.setAttribute('cy',y); c.setAttribute('r',NR);
+      c.setAttribute('fill',fill); c.setAttribute('stroke',stroke);
+      c.setAttribute('stroke-width', n.t==='bn'?'2':'1.5');
+      if(n.t==='bn') c.setAttribute('stroke-dasharray','2 1.5');
+      svg.appendChild(c);
+      const txt=document.createElementNS(ns,'text');
+      txt.setAttribute('x',x); txt.setAttribute('y',y+3.5);
+      txt.setAttribute('text-anchor','middle');
+      txt.setAttribute('font-size','7.5'); txt.setAttribute('fill','#ffffff');
+      txt.setAttribute('font-weight','700');
+      txt.textContent=(n.t==='bn'?(KEY_DISPLAY[n.note]||n.note)+'↑':(KEY_DISPLAY[n.note]||n.note));
+      svg.appendChild(txt);
+    });
+  });
+  return svg;
+}
+
+render();
+</script>
+</body>
+</html>
